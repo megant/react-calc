@@ -2,10 +2,12 @@ import React from 'react'
 import Key from '../Key'
 import './Keypad.scss'
 
-export default({
+const Keypad = ({
         digitClickHandler, 
         dotClickHandler, 
+        percentageClickHandler,
         operatorClickHandler,
+        equalClickHandler,
         oppositeClickHandler,
         clearClickHandler   
     }) => {
@@ -16,7 +18,7 @@ export default({
                 <section className="functions">
                     <Key label="AC" onClick={() => clearClickHandler()} />
                     <Key label="±" onClick={() => oppositeClickHandler()} />
-                    <Key label="%" onClick={() => operatorClickHandler("%")} />
+                    <Key label="%" onClick={() => percentageClickHandler()} />
                 </section>
                 <section className="digits">
                     <Key type="key-0" label="0" onClick={() => digitClickHandler(0)} />
@@ -37,8 +39,9 @@ export default({
                 <Key label="-" onClick={() => operatorClickHandler("-")} />
                 <Key type="multiply" label="x" onClick={() => operatorClickHandler("*")} />
                 <Key label="÷" onClick={() => operatorClickHandler("/")} />
-                <Key label="=" onClick={() => operatorClickHandler("=")} />
+                <Key label="=" onClick={() => equalClickHandler()} />
             </section>
         </div>
     )
 }
+export default Keypad

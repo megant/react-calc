@@ -11,57 +11,93 @@ class Calculator extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            lastValue: 0,
+            lastValue: null,
             currentValue: 0,
             lastOperator: null,
             operatorClicked: false,
+            currentValueIsDecimal: false,
             dotPlaced: false,
-            decimaSeparator: ""
-        }
-    }
-    
-    showDigit(digit) {
-        if (this.SCREEN_LENGTH > this.state.currentValue.toString().length) {
-            const newValue = (this.state.operatorClicked) ? parseInt(digit) : parseFloat(this.state.currentValue + this.state.decimaSeparator + digit);
-            this.setState({currentValue: newValue, decimaSeparator: "", operatorClicked: false})
         }
     }
 
-    placeDot() {
-        if (!this.state.dotPlaced) {
-            this.setState({decimaSeparator: ".", dotPlaced: true})
+    storeCurrentValue() {
+        this.setState({
+            lastValue: this.state.currentValue, 
+            operatorClicked: false,
+            currentValueIsDecimal: false,
+            dotPlaced: false,
+        })
+    }
+    
+    addDigit(digit) {
+        if (this.SCREEN_LENGTH === this.state.currentValue.toString().length) {
+            return
+        } 
+
+        let newValue
+
+        if (this.state.operatorClicked) {
+            this.storeCurrentValue()
+            newValue = digit
+        } 
+        else {
+            if (this.state.currentValueIsDecimal) {
+                if (!this.state.dotPlaced) {
+                    digit = "." + digit
+                    this.setState({dotPlaced: true})
+                }
+                newValue = this.state.currentValue.toString() + digit
+            } 
+            else {
+                newValue = this.state.currentValue * 10 + digit
+            }
+        }
+        this.setState({currentValue: newValue})
+    }
+
+    addDot() {
+        if (!this.state.currentValueIsDecimal) {
+            this.setState({currentValueIsDecimal: true, dotPlaced: false})
         }
     }
 
     doOpposite() {
         if (this.state.currentValue !== 0) {
-            this.setState({currentValue: -this.state.currentValue})
+            this.setState({currentValue: -parseFloat(this.state.currentValue)})
+        }
+    }
+
+    doPercentage() {
+        this.setState({currentValue: parseFloat(this.state.currentValue) / 100})
+    }
+
+    showResult() {
+        if (this.state.lastOperator !== null) {
+            const newValue = calculate(parseFloat(this.state.lastValue), parseFloat(this.state.currentValue), this.state.lastOperator)
+            this.setState({
+                currentValue: newValue
+            })
         }
     }
 
     doOperation(operator) {
-        if (this.state.lastOperator !== null) {
-            const newValue = calculate(this.state.lastValue, this.state.currentValue, this.state.lastOperator)
-            this.setState({
-                currentValue: newValue,
-                lastValue: newValue
-            })
-        }             
+        if (this.state.operatorClicked) return
+
         this.setState({
-            lastOperator: (operator === "=") ? this.state.lastOperator : operator,
-            operatorClicked: true,
-            lastValue: this.state.currentValue
+            lastOperator: operator,
+            operatorClicked: true
         })
+        this.showResult()
     }
 
-    clearScreen() {
+    resetState() {
         this.setState({
-            lastValue: 0,
+            lastValue: null,
             currentValue: 0,
             lastOperator: null,
-            dotClicked: false,
+            operatorClicked: false,
+            currentValueIsDecimal: false,
             dotPlaced: false,
-            digitPrefix: ""
         })
     }
     
@@ -70,11 +106,13 @@ class Calculator extends React.Component {
             <div className="calculator">
                 <Screen value={this.state.currentValue} screenLength={this.SCREEN_LENGTH}/>
                 <Keypad 
-                    digitClickHandler={this.showDigit.bind(this)}
+                    digitClickHandler={this.addDigit.bind(this)}
                     operatorClickHandler={this.doOperation.bind(this)}
-                    dotClickHandler={this.placeDot.bind(this)}
+                    equalClickHandler={this.showResult.bind(this)}
+                    dotClickHandler={this.addDot.bind(this)}
+                    percentageClickHandler={this.doPercentage.bind(this)}
                     oppositeClickHandler={this.doOpposite.bind(this)}
-                    clearClickHandler={this.clearScreen.bind(this)}
+                    clearClickHandler={this.resetState.bind(this)}
                 />
             </div>
         )

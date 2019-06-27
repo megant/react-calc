@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import './Screen.scss'
 
-export default({screenLength, value}) => {
+const Screen = ({screenLength = 12, value = 0}) => {
 
     const [valueOverflow, setValueOverflow] = useState(false)
     let chunkedValue = value.toString().slice(0, screenLength)
@@ -14,9 +14,10 @@ export default({screenLength, value}) => {
         <div className="screen">
             <div className="content">
                 {chunkedValue}{valueOverflow && (
-                    <span>E</span>
+                    <span className="overflow-indicator">E</span>
                 )}
             </div>
         </div>
     )
 }
+export default Screen
